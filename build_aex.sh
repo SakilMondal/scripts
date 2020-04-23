@@ -1,5 +1,5 @@
 TG_BOT_API_KEY=$BOT_API_KEY
-TG_CHAT_ID=172556296
+TG_CHAT_ID=436196117
 
 #detect path where the script is running
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
