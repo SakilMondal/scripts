@@ -103,7 +103,7 @@ if [ ! -f $config ]; then
 	done
 
 	echo "${blu}Select Build Type?${txtrst}"
-	select yn in "eng" "userdebug"; do
+	select yn in "eng" "userdebug" "user"; do
 		case $yn in
 		eng)
 			device_build_type=aosp_${DEVICE}-eng
@@ -111,6 +111,10 @@ if [ ! -f $config ]; then
 			;;
 		userdebug)
 			device_build_type=aosp_${DEVICE}-userdebug
+			break
+			;;
+		user)
+			device_build_type=aosp_${DEVICE}-user
 			break
 			;;
 		esac
