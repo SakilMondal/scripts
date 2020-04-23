@@ -176,6 +176,7 @@ export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
 export CCACHE_COMPRESS=1
 export CCACHE_MAXSIZE=50G # 50 GB
+export CCACHE_DIR=~/sakil/ccache-q
 cd $aex_path
 if ! lunch "${device_build_type:?}"; then
 	echo "Lunching $DEVICE failed"
