@@ -162,6 +162,20 @@ select yn in "gapps" "nongapps"; do
 	esac
 done
 
+echo "${blu}OFFICIAL or UNOFFICIAL Build?${txtrst}"
+select yn in "OFFICIAL" "UNOFFICIAL"; do
+	case $yn in
+	OFFICIAL)
+		export EXTENDED_BUILD_TYPE=OFFICIAL
+		break
+		;;
+	UNOFFICIAL)
+		export EXTENDED_BUILD_TYPE=UNOFFICIAL
+		break
+		;;
+	esac
+done
+
 source build/envsetup.sh
 
 echo "${blu}Make clean build?${txtrst}"
