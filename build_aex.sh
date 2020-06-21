@@ -37,6 +37,23 @@ function sendTG() {
 	curl -s "https://api.telegram.org/bot${TG_BOT_API_KEY}/sendmessage" --data "text=${*}&chat_id=${TG_CHAT_ID}&parse_mode=Markdown" >/dev/null
 }
 
+function urlencode() {
+    # urlencode <string>
+    old_lc_collate=$LC_COLLATE
+    LC_COLLATE=C
+    
+    local length="${#1}"
+    for (( i = 0; i < length; i++ )); do
+        local c="${1:i:1}"
+        case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            *) printf '%%%02X' "'$c" ;;
+        esac
+    done
+    
+    LC_COLLATE=$old_lc_collate
+}
+
 config=$SCRIPT_DIR"/config.conf"
 
 if [ ! -f $config ]; then
@@ -194,7 +211,7 @@ export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
 export CCACHE_COMPRESS=1
 export CCACHE_MAXSIZE=50G # 50 GB
-export CCACHE_DIR=~/sakil/ccache-q
+export CCACHE_DIR=~/sakil/ccache
 cd $aex_path
 if ! lunch "${device_build_type:?}"; then
 	echo "Lunching $DEVICE failed"
@@ -219,20 +236,20 @@ select yn in "yes" "no"; do
 			MD5="$(md5sum "${ZIP}" | awk '{print $1}')"
 			if [ "$set_upload_build" = true -a "$set_upload_build_server" == "gdrive" ]; then
 				# Upload file
-				GDRIVE_UPLOAD_URL=$(gdrive upload --share $ZIP | awk '/https/ {print $7}')
-				GDRIVE_UPLOAD_ID="$(echo "${GDRIVE_UPLOAD_URL}" | sed -r -e 's/(.*)&export.*/\1/' -e 's/https.*id=(.*)/\1/' -e 's/https.*\/d\/(.*)\/view/\1/')"
+			GDRIVE_UPLOAD_URL=$(gdrive upload --share $ZIP -p 1GxPAlSxIt9txvMK8CqkJTwH59qZfAqmN | awk '/https/ {print $7}')
+			GDRIVE_UPLOAD_ID="$(echo "${GDRIVE_UPLOAD_URL}" | sed -r -e 's/(.*)&export.*/\1/' -e 's/https.*id=(.*)/\1/' -e 's/https.*\/d\/(.*)\/view/\1/')"
 
-				if [ -z "$GDRIVE_UPLOAD_URL" ] || [ -z "$GDRIVE_UPLOAD_ID" ]; then
-					echo -e ${cya}"Couldn't upload build...."${txtrst};
-					sendTG "$mydevice build is done, but couldn't upload."
-				else
-					UPLOAD_INFO="
-					File: [$(basename "${ZIP}")](${GDRIVE_UPLOAD_URL})
-					Size: ${ZIP_SIZE}
-					MD5: \`${MD5}\`
-					GDrive ID: \`${GDRIVE_UPLOAD_ID}\`"
-					sendTG "${UPLOAD_INFO}"
-				fi
+        if [ -z "$GDRIVE_UPLOAD_URL" ] || [ -z "$GDRIVE_UPLOAD_ID" ]; then
+            echo -e ${cya}"Couldn't upload build...."${txtrst};
+            sendTG "$DEVICE build is done, but couldn't upload."
+        else
+			GDINDEX_URL="https://downloads.sakilmondal.me/Roms/$(urlencode $(basename "${ZIP}"))"
+            UPLOAD_INFO="File: [$(basename "${ZIP}")](${GDINDEX_URL})
+Size: ${ZIP_SIZE}
+MD5: \`${MD5}\`
+GDrive ID: \`${GDRIVE_UPLOAD_ID}\`"
+		    sendTG "${UPLOAD_INFO}"
+        fi
 			else
 				sendTG "$DEVICE build is done."
 			fi
